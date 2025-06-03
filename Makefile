@@ -1,3 +1,4 @@
+# Terraform
 init:
 	cd terraform && terraform init
 
@@ -18,3 +19,7 @@ fmt:
 
 validate:
 	cd terraform && terraform validate
+
+# Ansible
+ping-web:
+	cd ansible && ansible webservers -m ping

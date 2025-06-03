@@ -2,8 +2,35 @@ provider "aws" {
   region = var.aws_region
 }
 
-data "aws_ssm_parameter" "amazon_linux_ami" {
-  name = "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
+data "aws_ssm_parameter" "ubuntu_ami" {
+  name = "/aws/service/canonical/ubuntu/server/22.04/stable/current/amd64/hvm/ebs-gp2/ami-id"
+}
+
+resource "aws_instance" "web" {
+  count         = 2
+  ami           = data.aws_ssm_parameter.ubuntu_ami.value
+  instance_type = "t3.micro"
+  subnet_id     = aws_subnet.public[count.index].id
+  vpc_security_group_ids = [aws_security_group.web_sg.id]
+  key_name = aws_key_pair.deployer.key_name
+
+  tags = {
+    Name = "WebServer-${count.index + 1}"
+  }
+}
+
+resource "aws_eip" "web_1" {}
+
+resource "aws_eip" "web_2" {}
+
+resource "aws_eip_association" "web_1" {
+  instance_id   = aws_instance.web[0].id
+  allocation_id = aws_eip.web_1.id
+}
+
+resource "aws_eip_association" "web_2" {
+  instance_id   = aws_instance.web[1].id
+  allocation_id = aws_eip.web_2.id
 }
 
 resource "aws_vpc" "main" {
@@ -17,10 +44,10 @@ resource "aws_subnet" "public" {
   count             = 2
   vpc_id            = aws_vpc.main.id
   cidr_block        = cidrsubnet(aws_vpc.main.cidr_block, 8, count.index)
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
   availability_zone = data.aws_availability_zones.available.names[count.index]
   tags = {
-    Name = "public-subnet-${count.index}"
+    Name = "public-subnet-${count.index + 1}"
   }
 }
 
@@ -50,44 +77,20 @@ resource "aws_security_group" "web_sg" {
   description = "Allow HTTP, HTTPS, and SSH"
   vpc_id      = aws_vpc.main.id
 
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+  dynamic "ingress" {
+    for_each = [80, 443, 22]
+    content {
+      from_port = ingress.value
+      to_port   = ingress.value
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"] 
+    }
   }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-resource "aws_instance" "web" {
-  count         = 2
-  ami           = data.aws_ssm_parameter.amazon_linux_ami.value
-  instance_type = "t3.micro"
-  subnet_id     = aws_subnet.public[count.index].id
-  vpc_security_group_ids = [aws_security_group.web_sg.id]
-
-  tags = {
-    Name = "WebServer-${count.index}"
   }
 }
 
@@ -98,6 +101,10 @@ resource "aws_lb" "app_lb" {
   security_groups    = [aws_security_group.web_sg.id]
 }
 
+resource "aws_key_pair" "deployer" {
+  key_name   = "nina-key"
+  public_key = file("~/.ssh/new_key.pub")
+}
 resource "aws_lb_target_group" "tg" {
   name     = "app-tg"
   port     = 80

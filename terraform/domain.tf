@@ -5,6 +5,12 @@ resource "aws_route53_zone" "main" {
 resource "aws_acm_certificate" "cert" {
   domain_name       = "ansible-container-orchestrator.online"
   validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  depends_on = [aws_route53_zone.main]
 }
 
 resource "aws_route53_record" "app" {

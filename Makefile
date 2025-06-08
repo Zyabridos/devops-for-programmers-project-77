@@ -46,3 +46,6 @@ deploy:
 playbook:
 	@echo "🚀 Running Ansible entire Playbook..."
 	cd ansible && ansible-playbook playbook.yml
+
+datadog:
+	@cd ansible && ansible-playbook playbook.yml --ask-vault-password

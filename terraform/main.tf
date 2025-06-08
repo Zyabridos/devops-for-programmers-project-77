@@ -1,11 +1,3 @@
-provider "aws" {
-  region = var.aws_region
-}
-
-data "aws_ssm_parameter" "ubuntu_ami" {
-  name = "/aws/service/canonical/ubuntu/server/22.04/stable/current/amd64/hvm/ebs-gp2/ami-id"
-}
-
 resource "aws_instance" "web" {
   count         = 2
   ami           = data.aws_ssm_parameter.ubuntu_ami.value
@@ -19,9 +11,17 @@ resource "aws_instance" "web" {
   }
 }
 
-resource "aws_eip" "web_1" {}
+resource "aws_eip" "web_1" {
+  tags = {
+    Name = "EIP for WebServer 1"
+  }
+}
 
-resource "aws_eip" "web_2" {}
+resource "aws_eip" "web_2" {
+  tags = {
+    Name = "EIP for WebServer 2"
+  }
+}
 
 resource "aws_eip_association" "web_1" {
   instance_id   = aws_instance.web[0].id
@@ -44,14 +44,12 @@ resource "aws_subnet" "public" {
   count             = 2
   vpc_id            = aws_vpc.main.id
   cidr_block        = cidrsubnet(aws_vpc.main.cidr_block, 8, count.index)
-  map_public_ip_on_launch = false
+  map_public_ip_on_launch = true
   availability_zone = data.aws_availability_zones.available.names[count.index]
   tags = {
     Name = "public-subnet-${count.index + 1}"
   }
 }
-
-data "aws_availability_zones" "available" {}
 
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
@@ -78,7 +76,7 @@ resource "aws_security_group" "web_sg" {
   vpc_id      = aws_vpc.main.id
 
   dynamic "ingress" {
-    for_each = [80, 443, 22]
+    for_each = [80, 443, 22, 3000]
     content {
       from_port = ingress.value
       to_port   = ingress.value
@@ -107,32 +105,39 @@ resource "aws_key_pair" "deployer" {
 }
 resource "aws_lb_target_group" "tg" {
   name     = "app-tg"
-  port     = 80
+  port     = 3000
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
+  lifecycle {
+    create_before_destroy = true
+  }
+  health_check {
+  path                = "/"
+  port                = "3000"
+  protocol            = "HTTP"
+  interval            = 30
+  timeout             = 5
+  healthy_threshold   = 2
+  unhealthy_threshold = 2
 }
-
-# evnt will create an acm certificate and will move to https
+}
 resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.app_lb.arn
-  protocol          = "HTTP"
-  port              = 80
-  # port              = 443
-  # protocol          = "HTTPS"
-  # ssl_policy        = "ELBSecurityPolicy-2016-08"
-  # certificate_arn   = var.acm_certificate_arn
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = aws_acm_certificate.cert.arn
 
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.tg.arn
   }
 }
-
 resource "aws_lb_target_group_attachment" "attach" {
   count              = 2
   target_group_arn   = aws_lb_target_group.tg.arn
   target_id          = aws_instance.web[count.index].id
-  port               = 80
+  port               = 3000
 }
 
 resource "aws_db_instance" "db" {

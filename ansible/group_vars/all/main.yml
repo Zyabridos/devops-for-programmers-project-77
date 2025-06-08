@@ -1,0 +1,5 @@
+pip_install_packages:
+  - name: docker
+
+chat_image: zyabridos/chat:latest
+chat_port: 3000

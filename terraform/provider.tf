@@ -7,3 +7,16 @@ data "aws_ssm_parameter" "ubuntu_ami" {
 }
 
 data "aws_availability_zones" "available" {}
+
+terraform {
+  required_providers {
+    datadog = {
+      source  = "datadog/datadog"
+      version = "~> 3.34.0"
+    }
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}

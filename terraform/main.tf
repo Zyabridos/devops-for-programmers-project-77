@@ -1,16 +1,3 @@
-terraform {
-  required_providers {
-    datadog = {
-      source  = "datadog/datadog"
-      version = "~> 3.34.0"
-    }
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-}
-
 resource "aws_instance" "web" {
   count         = 2
   ami           = data.aws_ssm_parameter.ubuntu_ami.value

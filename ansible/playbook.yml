@@ -37,8 +37,9 @@
         restart_policy: always
         ports:
           - "{{ chat_port }}:3000"
-      tags: deplo
+      tags: deploy
 
     - name: Start datadog
       import_role:
         name: datadog.datadog
+      tags: setup

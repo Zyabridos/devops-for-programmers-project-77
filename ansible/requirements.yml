@@ -2,3 +2,4 @@ roles:
   - name: geerlingguy.java
   - name: geerlingguy.pip
   - name: geerlingguy.docker
+  - name: datadog.datadog

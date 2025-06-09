@@ -6,4 +6,5 @@
 crash.log
 terraform.tfvars
 secrets.auto.tfvars
-notes.txt
+secrets.backend.tfvars
+ansible/vault-password

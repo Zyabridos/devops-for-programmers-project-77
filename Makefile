@@ -35,14 +35,21 @@ ping-web:
 	@echo "📡 Pinging web servers..."
 	cd ansible && ansible -i inventory.ini webservers -m ping
 
+generate-inventory:
+	@terraform output -json > terraform_output.json
+	@python3 scripts/generate_inventory.py terraform_output.json ansible/inventory.ini
+
 install-roles:
 	@echo "📦 Installing Ansible Galaxy roles..."
 	cd ansible && ansible-galaxy install -r requirements.yml
 
 deploy:
-	@echo "🚀 Running Ansible deployment..."
-	cd ansible && ansible-playbook playbook.yml --tags deploy
+	@echo "🚀 Running Ansible deployment..."s
+	ansible-playbook -i ansible/inventory.ini -v --vault-password-file ansible/vault-password ansible/playbook.yml --tags deploy
 
 playbook:
 	@echo "🚀 Running Ansible entire Playbook..."
 	@cd ansible && ansible-playbook playbook.yml --ask-vault-password
+
+generate-vars:
+	ansible-playbook --vault-password-file ansible/vault-password ansible/terraform.yml

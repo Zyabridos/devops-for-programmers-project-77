@@ -35,10 +35,6 @@ ping-web:
 	@echo "📡 Pinging web servers..."
 	cd ansible && ansible -i inventory.ini webservers -m ping
 
-generate-inventory:
-	@terraform output -json > terraform_output.json
-	@python3 scripts/generate_inventory.py terraform_output.json ansible/inventory.ini
-
 install-roles:
 	@echo "📦 Installing Ansible Galaxy roles..."
 	cd ansible && ansible-galaxy install -r requirements.yml

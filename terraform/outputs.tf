@@ -2,6 +2,7 @@ output "web_servers_ips" {
   value = aws_instance.web[*].public_ip
 }
 
+
 output "db_name" {
   value = aws_db_instance.db.db_name
 }

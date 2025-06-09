@@ -11,28 +11,6 @@ resource "aws_instance" "web" {
   }
 }
 
-resource "aws_eip" "web_1" {
-  tags = {
-    Name = "EIP for WebServer 1"
-  }
-}
-
-resource "aws_eip" "web_2" {
-  tags = {
-    Name = "EIP for WebServer 2"
-  }
-}
-
-resource "aws_eip_association" "web_1" {
-  instance_id   = aws_instance.web[0].id
-  allocation_id = aws_eip.web_1.id
-}
-
-resource "aws_eip_association" "web_2" {
-  instance_id   = aws_instance.web[1].id
-  allocation_id = aws_eip.web_2.id
-}
-
 resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
   tags = {
@@ -94,4 +72,9 @@ resource "aws_security_group" "web_sg" {
 resource "aws_key_pair" "deployer" {
   key_name   = "nina-key"
   public_key = file("~/.ssh/new_key.pub")
+}
+
+resource "local_file" "inventory" {
+  content  = data.template_file.inventory.rendered
+  filename = "${path.module}/../ansible/inventory.ini"
 }

@@ -6,7 +6,7 @@ It deploys [**my chat application**](https://github.com/Zyabridos/chat), contain
 
 ## Deployed Application
 You can access the application here (when deployed):  
-🔗 https://ansible-container-orchestrator.online/
+🔗 https://ansible-container-orchestrator.online/  
 The domain is connected to an AWS Application Load Balancer with HTTPS enabled via ACM.
 
 **Note:** The application is currently not running, as I’ve temporarily disabled the infrastructure to avoid unnecessary cloud costs.

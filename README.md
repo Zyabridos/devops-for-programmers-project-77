@@ -5,7 +5,7 @@ This project provisions infrastructure for a web application using **Terraform**
 It deploys [**my chat application**](https://github.com/Zyabridos/chat), containerized with **Docker** and hosted on EC2 instances behind a Load Balancer.
 
 ## Deployed Application
-You can access the application here (when deployed):
+You can access the application here (when deployed):  
 🔗 https://ansible-container-orchestrator.online/
 The domain is connected to an AWS Application Load Balancer with HTTPS enabled via ACM.
 

@@ -10,7 +10,7 @@ You can access the application here (when deployed):
 The domain is connected to an AWS Application Load Balancer with HTTPS enabled via ACM.
 
 **Note:** The application is currently not running, as I’ve temporarily disabled the infrastructure to avoid unnecessary cloud costs.
-However, the setup is fully automated and can be brought back online in no time upon request using make apply and make deploy.
+However, the setup is fully automated and can be brought back online in no time upon request.
 
 ## What It Deploys
 

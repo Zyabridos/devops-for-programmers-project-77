@@ -4,6 +4,14 @@
 This project provisions infrastructure for a web application using **Terraform** and configures it using **Ansible**.  
 It deploys [**my chat application**](https://github.com/Zyabridos/chat), containerized with **Docker** and hosted on EC2 instances behind a Load Balancer.
 
+## Deployed Application
+You can access the application here (when deployed):
+🔗 https://ansible-container-orchestrator.online/
+The domain is connected to an AWS Application Load Balancer with HTTPS enabled via ACM.
+
+**Note:** The application is currently not running, as I’ve temporarily disabled the infrastructure to avoid unnecessary cloud costs.
+However, the setup is fully automated and can be brought back online in no time upon request using make apply and make deploy.
+
 ## What It Deploys
 
 -   2 EC2 web servers (Ubuntu)
@@ -20,14 +28,7 @@ It deploys [**my chat application**](https://github.com/Zyabridos/chat), contain
 -   **Make**
 -   **Ansible** >= 2.15
 -   SSH key (`~/.ssh/new_key` and `~/.ssh/new_key.pub`) for EC2 access
-
-## Deployed Application
-You can access the application here:
-🔗 [https://ansible-container-orchestrator.online/](https://ansible-container-orchestrator.online/)
-The domain is connected to an AWS Application Load Balancer with HTTPS enabled via ACM.
-
-    
-
+  
 ## Usage
 
 ### 1. Initialize & Plan Infrastructure
